@@ -1,0 +1,87 @@
+def is_valid(board, row, col, num): 
+    """Verifica si un número es válido en la posición dada."""
+    # revisa fila
+    for i in range(9):
+        if board[row][i] == num:
+            return False
+    # revisa columna
+    for i in range(9):
+        if board[i][col] == num:
+            return False
+    # revisa el subcuadro 3x3
+    start_row, start_col = 3 * (row // 3), 3 * (col // 3)
+    for i in range(3):
+        for j in range(3):
+            if board[start_row + i][start_col + j] == num:
+                return False
+    return True
+
+def solve_sudoku(board, row=0, col=0):
+    #ROW(POSICION DE LA FILA)
+    #COL(COLUMNA DE LA FILA)
+    """
+    Resolicon del Sudoku usando la tecnica de Divide y Vencerás.
+    row, col: Indican la celda actual a resolver.
+    """
+    # ultima celda, el tablero está completo
+    if row == 9:
+        return True
+    
+    # Continuar a la siguiente fila si llega al final de una columna
+    if col == 9:
+        return solve_sudoku(board, row + 1, 0)
+    
+    # Si ya está completa la celda, sigue a la otra celda que continúa
+    if board[row][col] != 0:
+        return solve_sudoku(board, row, col + 1)
+    
+    # Prueba con números del 1 al 9
+    for num in range(1, 10):
+        if is_valid(board, row, col, num):
+            board[row][col] = num  # Coloca el número provisionalmente
+            print(f"Colocando {num} en la posición ({row}, {col}):")
+            print_board(board)
+            
+            # Resuelve la celda siguiente
+            if solve_sudoku(board, row, col + 1):
+                return True
+
+            # Retrocede si no es válido
+            board[row][col] = 0
+            print(f"Retrocediendo en la posición ({row}, {col}):")
+            print_board(board)
+    
+    return False  # No se pudo resolver (no hay solución)
+
+def print_board(board):
+    """Imprime el tablero de Sudoku."""
+    for i in range(9):
+        if i % 3 == 0 and i != 0:
+            print("-" * 21)
+        for j in range(9):
+            if j % 3 == 0 and j != 0:
+                print("| ", end="")
+            print(board[i][j] if board[i][j] != 0 else ".", end=" ")
+        print()
+
+# Tablero (0 = celdas vacías)
+sudoku_board = [
+    [4, 2, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+]
+
+print("Tablero inicial:")
+print_board(sudoku_board)
+
+if solve_sudoku(sudoku_board):
+    print("\n¡Sudoku resuelto!")
+    print_board(sudoku_board)
+else:
+    print("\nNo se encontró solución para el Sudoku.")
